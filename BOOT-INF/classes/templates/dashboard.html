@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>QA Training App | Dashboard</title>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+</head>
+
+<body>
+
+<div th:replace="layout :: layout">
+
+    <div th:fragment="content">
+
+        <div class="container-fluid">
+
+            <h3 class="mb-4">Dashboard</h3>
+
+            <div class="row g-4">
+
+                <!-- Categories -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card shadow-sm h-100 dashboard-card">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-diagram-3 fs-4 text-primary me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Categories</h6>
+                            </div>
+
+                            <div class="small text-muted mb-3">
+                                Organize plant structure
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <div class="fw-bold fs-5"
+                                         th:text="${categorySummary.mainCategories}">0</div>
+                                    <div class="small text-muted">Main</div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="fw-bold fs-5"
+                                         th:text="${categorySummary.subCategories}">0</div>
+                                    <div class="small text-muted">Sub</div>
+                                </div>
+                            </div>
+
+                            <a href="/ui/categories"
+                               class="btn btn-sm btn-outline-primary w-100">
+                                Manage Categories
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plants -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card shadow-sm h-100 dashboard-card">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-flower1 fs-4 text-success me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Plants</h6>
+                            </div>
+
+                            <div class="small text-muted mb-3">
+                                Manage plant details
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <div class="fw-bold fs-5"
+                                         th:text="${plantSummary.totalPlants}">0</div>
+                                    <div class="small text-muted">Total</div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="fw-bold fs-5"
+                                         th:text="${plantSummary.lowStockPlants}">0</div>
+                                    <div class="small text-muted">Low Stock</div>
+                                </div>
+                            </div>
+
+                            <a href="/ui/plants"
+                               class="btn btn-sm btn-outline-success w-100">
+                                Manage Plants
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- Sales Summary -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card shadow-sm h-100 dashboard-card">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-cash-stack fs-4 text-primary me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Sales</h6>
+                            </div>
+
+                            <div class="small text-muted mb-3">
+                                Sales overview
+                            </div>
+
+                            <div class="d-flex justify-content-between mb-3">
+                                <div>
+                                    <div class="fw-bold fs-5">
+                                        Rs <span th:text="${salesSummary.totalRevenue}">0</span>
+                                    </div>
+                                    <div class="small text-muted">Revenue</div>
+                                </div>
+
+                                <div class="text-end">
+                                    <div class="fw-bold fs-5"
+                                         th:text="${salesSummary.totalSalesCount}">0</div>
+                                    <div class="small text-muted">Sales</div>
+                                </div>
+                            </div>
+
+                            <a href="/ui/sales"
+                               class="btn btn-sm btn-outline-primary w-100">
+                                View Sales
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- Inventory -->
+                <div class="col-md-6 col-lg-3">
+                    <div class="card shadow-sm h-100 dashboard-card">
+                        <div class="card-body">
+
+                            <div class="d-flex align-items-center mb-2">
+                                <i class="bi bi-box-seam fs-4 text-warning me-2"></i>
+                                <h6 class="mb-0 fw-semibold">Inventory</h6>
+                            </div>
+
+                            <div class="small text-muted mb-3">
+                                Track stock movement
+                            </div>
+
+                            <a href="/ui/inventory"
+                               class="nav-link text-white disabled"
+                               data-bs-toggle="tooltip"
+                               title="Inventory page coming soon">
+                                Open Inventory
+                            </a>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

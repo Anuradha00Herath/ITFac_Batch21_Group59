@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+
+<body>
+
+<div th:fragment="layout">
+
+    <div class="app-layout">
+
+        <!-- ✅ SIDEBAR -->
+        <div class="sidebar nav flex-column">
+            <!-- Logo -->
+            <div class="sidebar-logo text-center mb-4">
+                <img th:src="@{/images/logo.png}" alt="QA Training App Logo" width="100">
+            </div>
+
+            <a href="/ui/dashboard"
+               th:class="'nav-link text-white ' + (${activeMenu}=='dashboard' ? 'active' : '')">
+                <i class="bi bi-speedometer2 me-2"></i> Dashboard
+            </a>
+
+            <a href="/ui/categories"
+               th:class="'nav-link text-white ' + (${activeMenu}=='categories' ? 'active' : '')">
+                <i class="bi bi-tags me-2"></i> Categories
+            </a>
+
+            <a href="/ui/plants"
+               th:class="'nav-link text-white ' + (${activeMenu}=='plants' ? 'active' : '')">
+                <i class="bi bi-flower1 me-2"></i> Plants
+            </a>
+            <a href="/ui/sales"
+               th:class="'nav-link text-white ' + (${activeMenu}=='sales' ? 'active' : '')">
+                <i class="bi bi-currency-rupee me-2"></i> Sales
+            </a>
+
+            <a href="javascript:void(0);"
+               class="nav-link text-white disabled"
+               data-bs-toggle="tooltip"
+               title="Inventory page coming soon">
+                <i class="bi bi-box-seam me-2"></i> Inventory
+            </a>
+
+
+
+
+            <hr class="text-secondary">
+
+            <a href="/ui/logout" class="nav-link text-danger">
+                <i class="bi bi-box-arrow-right me-2"></i> Logout
+            </a>
+
+        </div>
+
+        <!-- ✅ MAIN AREA -->
+        <div class="main-content">
+            <div th:replace="~{header :: header}"></div>
+            <div th:replace="~{::content}"></div>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
