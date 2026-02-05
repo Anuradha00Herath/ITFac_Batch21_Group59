@@ -5,6 +5,7 @@ import java.util.Map;
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.options.RequestOptions;
+import hooks.Hooks;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -36,13 +37,6 @@ public class DataHelper {
                 );
             }
         }
-    }
-
-
-    // Used for TC_ADMIN_API_SALES_002 (Delete)
-    public static void deleteSale(APIRequestContext request, String id) {
-        request.delete(BASE_URL + "/api/sales/" + id,
-                RequestOptions.create().setHeader("Authorization", AuthManager.getAdminToken()));
     }
 
     public static void deleteAllSales(APIRequestContext request) {

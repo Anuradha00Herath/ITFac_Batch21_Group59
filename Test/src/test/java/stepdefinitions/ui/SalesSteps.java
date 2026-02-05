@@ -1,4 +1,4 @@
-package stepdefinitions;
+package stepdefinitions.ui;
 
 import com.microsoft.playwright.Locator;
 import hooks.Hooks;
