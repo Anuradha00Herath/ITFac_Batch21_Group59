@@ -95,7 +95,7 @@ public class SalesUiSteps {
     }
 
     @Given("I am logged in as {string}")
-    public void i_am_logged_in_as(String role) {
+    public void iamloggedinas(String role) {
         Page page = page();
 
         page.navigate(Config.BASE_URL + UI_LOGIN_PATH, new Page.NavigateOptions().setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
@@ -132,7 +132,7 @@ public class SalesUiSteps {
     }
 
     @Given("there are no sales records")
-    public void there_are_no_sales_records() {
+    public void therearenosalesrecords() {
         Page page = page();
 
         if (!page.url().contains(UI_SALES_PATH)) {
