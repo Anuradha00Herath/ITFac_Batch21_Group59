@@ -1,4 +1,4 @@
-package pages.api;
+package pages.category;
 
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
@@ -52,4 +52,27 @@ public class CategoryApiPage {
                 .extract()
                 .response();
     }
+    public Response createCategory(String token, Map<String, Object> requestBody) {
+        return given()
+                .baseUri(Config.BASE_URL)
+                .header("Authorization", "Bearer " + token)
+                .header("Content-Type", "application/json")
+                .body(requestBody)
+                .when()
+                .post(Config.API_CATEGORIES_ALL)
+                .then()
+                .extract()
+                .response();
+    }
+    
+    public Response getCategorySummary(String token) {
+    return given()
+            .baseUri(Config.BASE_URL)
+            .header("Authorization", "Bearer " + token)
+            .when()
+            .get(Config.API_CATEGORIES_SUMMARY)
+            .then()
+            .extract()
+            .response();
+}
 }
