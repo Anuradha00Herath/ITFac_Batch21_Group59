@@ -1,5 +1,5 @@
+@ui
 Feature: Sales Management
-
   Background:
     Given the user is logged in as "User"
     And at least one sale record exists in the database

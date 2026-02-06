@@ -1,3 +1,4 @@
+@ui
 Feature: Admin Navigation
 
   Scenario: TC_ADMIN_UI_SALES_001 - Verify navigation to Add Sale page

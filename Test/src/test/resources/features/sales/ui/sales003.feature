@@ -1,3 +1,4 @@
+@ui
 Feature: Sales Plant Name Sorting
 
   Background:

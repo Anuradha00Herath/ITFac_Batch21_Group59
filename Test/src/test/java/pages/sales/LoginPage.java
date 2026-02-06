@@ -1,7 +1,6 @@
 package pages;
 
 import com.microsoft.playwright.Page;
-import hooks.Hooks;
 
 public class LoginPage {
     private final Page page;

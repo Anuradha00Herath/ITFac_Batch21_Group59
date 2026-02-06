@@ -1,3 +1,4 @@
+@ui
 Feature: Admin Cancel Sale Navigation
 
   Scenario: TC_ADMIN_UI_SALES_005 - Cancel returns to sales list

@@ -1,3 +1,4 @@
+@ui
 Feature: Admin Sales Form Validation
 
   Scenario: TC_ADMIN_UI_SALES_003 - Quantity required validation

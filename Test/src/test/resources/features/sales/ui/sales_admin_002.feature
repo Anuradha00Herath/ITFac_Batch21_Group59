@@ -1,3 +1,4 @@
+@ui
 Feature: Admin Form Data Integrity
 
   Scenario: TC_ADMIN_UI_SALES_002 - Verify plant dropdown and stock information

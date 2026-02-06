@@ -1,3 +1,4 @@
+@ui
 Feature: Sales Sorting
 
   Background:

@@ -1,7 +1,7 @@
 package stepdefinitions.sales.ui;
 
 import com.microsoft.playwright.Locator;
-import hooks.Hooks;
+import hooks.UiHooks;
 import io.cucumber.java.en.*;
 import pages.SalesPage;
 import pages.LoginPage;
@@ -19,9 +19,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class SalesSteps {
     // Hooks.page provides the active Playwright page instance
-    SalesPage salesPage = new SalesPage(Hooks.page);
-    LoginPage loginPage = new LoginPage(Hooks.page);
-    PlantsPage plantsPage = new PlantsPage(Hooks.page);
+    SalesPage salesPage = new SalesPage(UiHooks.page);
+    LoginPage loginPage = new LoginPage(UiHooks.page);
+    PlantsPage plantsPage = new PlantsPage(UiHooks.page);
 
     private String chosenPlantName;
     private int beforeStock;
@@ -40,8 +40,8 @@ public class SalesSteps {
     @Given("at least one sale record exists in the database")
     public void recordExists() {
         // Verification or API data seeding logic
-        utils.sales.DataHelper.deleteAllSales(Hooks.page.context().request());
-        utils.sales.DataHelper.seedSales(Hooks.page.context().request(),11);
+        utils.sales.DataHelper.deleteAllSales(UiHooks.page.context().request());
+        utils.sales.DataHelper.seedSales(UiHooks.page.context().request(),11);
     }
 
     @When("the user navigates to the sales list page")
@@ -64,7 +64,7 @@ public class SalesSteps {
     public void seedSalesWithDifferentDates() {
         // Use your DataHelper to seed records.
         // Note: Your backend should automatically assign different 'soldAt' times.
-        utils.sales.DataHelper.seedSales(hooks.Hooks.page.context().request(), 11);
+        utils.sales.DataHelper.seedSales(UiHooks.page.context().request(), 11);
     }
     @Then("the latest sold date should appear at the top of the table")
     public void verifyDateSorting() {
@@ -88,7 +88,7 @@ public class SalesSteps {
     @Given("multiple sales exist with different plant names")
     public void seedSalesWithNames() {
         // Use your DataHelper to ensure variety in names
-        utils.sales.DataHelper.seedSales(hooks.Hooks.page.context().request(), 5);
+        utils.sales.DataHelper.seedSales(UiHooks.page.context().request(), 5);
     }
 
     @When("the user clicks the {string} column header")
@@ -97,7 +97,7 @@ public class SalesSteps {
             salesPage.sortByName("ascending");
         }
         // Add a small wait for the table rows to re-render
-        Hooks.page.waitForTimeout(1000);
+        UiHooks.page.waitForTimeout(1000);
     }
     @When("the user clicks the {string} column header again")
     public void clickHeaderAgain(String headerName) {
@@ -124,7 +124,7 @@ public class SalesSteps {
 
     @Given("the admin has cleared all sales records via API")
     public void clearSales() {
-        utils.sales.DataHelper.deleteAllSales(Hooks.page.context().request());
+        utils.sales.DataHelper.deleteAllSales(UiHooks.page.context().request());
     }
     @Then("a message {string} should be displayed")
     public void verifyEmptyMessage(String expectedMessage) {
@@ -134,7 +134,7 @@ public class SalesSteps {
     @Then("the sales table should not be visible")
     public void verifyTableHidden() {
         // We use isHidden() to ensure the table isn't just empty, but gone from the view
-        assertTrue(Hooks.page.locator("table.sales-list").isHidden());
+        assertTrue(UiHooks.page.locator("table.sales-list").isHidden());
     }
     @Then("the {string} button should be visible")
     public void verifyButtonVisible(String buttonName) {
@@ -144,7 +144,7 @@ public class SalesSteps {
     @Then("the {string} button should not be visible")
     public void verifyButtonNotVisible(String buttonName) {
         // isHidden() is the direct opposite of isVisible()
-        assertTrue(Hooks.page.locator("text=" + buttonName).isHidden(),
+        assertTrue(UiHooks.page.locator("text=" + buttonName).isHidden(),
                 "Security Breach: The '" + buttonName + "' button is visible to a non-admin!");
     }
     @And("a plant with ID 1 exists in the inventory")
@@ -160,8 +160,8 @@ public class SalesSteps {
     public void verifyUrlChange(String pageName) {
         // Verify that the URL now ends with the creation path
         // e.g., http://localhost:8080/ui/sales/add
-        assertTrue(Hooks.page.url().contains("/sales/new"),
-                "Navigation failed! Current URL is: " + Hooks.page.url());
+        assertTrue(UiHooks.page.url().contains("/sales/new"),
+                "Navigation failed! Current URL is: " + UiHooks.page.url());
     }
 
     @And("the form title should be {string}")
@@ -174,9 +174,9 @@ public class SalesSteps {
     @Then("the new sale should be visible at the top of the sales list")
     public void verifyNewSale() {
         // Since your default sort is 'Date Desc', the newest sale is always the 1st row
-        String firstRowPlant = Hooks.page.locator("table.sales-list tbody tr td:nth-child(2)").first().innerText();
+        String firstRowPlant = UiHooks.page.locator("table.sales-list tbody tr td:nth-child(2)").first().innerText();
         // You can also check if the quantity matches
-        String firstRowQty = Hooks.page.locator("table.sales-list tbody tr td:nth-child(3)").first().innerText();
+        String firstRowQty = UiHooks.page.locator("table.sales-list tbody tr td:nth-child(3)").first().innerText();
 
         assertTrue(firstRowQty.contains("5"), "The newly created sale quantity was not found at the top!");
     }
@@ -260,8 +260,8 @@ public class SalesSteps {
     @Then("the user should be redirected to the sales list page")
     public void redirectedToSalesList() {
         salesPage.waitForRedirectToSalesList();
-        assertTrue(Hooks.page.url().contains("/ui/sales"),
-                "Expected redirect to /ui/sales but was " + Hooks.page.url());
+        assertTrue(UiHooks.page.url().contains("/ui/sales"),
+                "Expected redirect to /ui/sales but was " + UiHooks.page.url());
     }
 
     @Then("the chosen plant stock should be reduced by {int}")
@@ -280,12 +280,12 @@ public class SalesSteps {
     @Then("no sale should be submitted on cancel")
     public void noSaleSubmittedOnCancel() {
         // On cancel, you MUST be on /ui/sales, so don't check /ui/sales/new
-        String url = Hooks.page.url();
+        String url = UiHooks.page.url();
         org.junit.jupiter.api.Assertions.assertTrue(url.contains("/ui/sales"),
                 "Expected to be on /ui/sales after cancel, but was: " + url);
 
         // Optional: ensure we didn't see a success message
-        Locator success = Hooks.page.locator("text=/sold successfully|sale created|success/i");
+        Locator success = UiHooks.page.locator("text=/sold successfully|sale created|success/i");
         if (success.count() > 0) {
             org.junit.jupiter.api.Assertions.assertFalse(success.first().isVisible(),
                     "Unexpected success message after cancel.");

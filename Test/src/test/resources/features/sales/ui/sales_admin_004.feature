@@ -1,3 +1,4 @@
+@ui
 Feature: Admin Sale Reduces Stock and Redirects
 
   Scenario: TC_ADMIN_UI_SALES_004 - Successful sale reduces stock and redirects

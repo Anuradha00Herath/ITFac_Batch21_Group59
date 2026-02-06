@@ -1,11 +1,8 @@
 package utils.sales;
 
-import java.util.Map;
-
 import com.microsoft.playwright.APIRequestContext;
 import com.microsoft.playwright.APIResponse;
 import com.microsoft.playwright.options.RequestOptions;
-import hooks.Hooks;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
 import utils.AuthManager;

@@ -1,3 +1,4 @@
+@ui
 Feature: Sales Access Control
 
   Scenario: TC_USER_UI_SALES_005 - Verify User cannot see Add Sale button

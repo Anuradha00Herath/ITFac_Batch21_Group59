@@ -10,8 +10,6 @@ import io.cucumber.java.en.*;
 import io.restassured.RestAssured;
 import io.restassured.response.Response;
 
-import java.util.List;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class SalesApiSteps {
@@ -156,7 +154,7 @@ public class SalesApiSteps {
         assertTrue(stock >= minStock, "Plant " + plantId + " must have stock >= " + minStock + ". Current stock=" + stock);
     }
 
-    @Given("a sale exists \\(capture a sale id\\) as {word}")
+    @Given("a sale exists as {word}")
     public void a_sale_exists_capture_as_role(String role) {
         requireRole(role);
         ctx.capturedSaleId = getAnySaleIdOrThrow(role);
@@ -207,22 +205,6 @@ public class SalesApiSteps {
         ctx.lastBodyText = res.asString();
     }
 
-    @When("I delete sale by id {string} as {word}")
-    public void i_delete_sale_by_id_as_role(String saleId, String role) {
-        requireRole(role);
-
-        Response res =
-                RestAssured.given()
-                        .baseUri(Config.BASE_URL)
-                        .header("Authorization", authFor(role))
-                        .contentType("application/json")
-                        .when()
-                        .delete(Config.API_SALE_BY_ID(saleId));
-
-        ctx.lastResponse = res;
-        ctx.lastStatus = res.statusCode();
-        ctx.lastBodyText = res.asString();
-    }
 
     @When("I get all sales as {word}")
     public void i_get_all_sales_as_role(String role) {
@@ -285,23 +267,6 @@ public class SalesApiSteps {
                         .contentType("application/json")
                         .when()
                         .delete(Config.API_SALE_BY_ID(ctx.capturedSaleId));
-
-        ctx.lastResponse = res;
-        ctx.lastStatus = res.statusCode();
-        ctx.lastBodyText = res.asString();
-    }
-
-    @When("I get the captured sale as admin")
-    public void i_get_captured_sale_as_admin() {
-        assertNotNull(ctx.capturedSaleId, "No capturedSaleId available.");
-
-        Response res =
-                RestAssured.given()
-                        .baseUri(Config.BASE_URL)
-                        .header("Authorization", authFor("admin"))
-                        .contentType("application/json")
-                        .when()
-                        .get(Config.API_SALE_BY_ID(ctx.capturedSaleId));
 
         ctx.lastResponse = res;
         ctx.lastStatus = res.statusCode();

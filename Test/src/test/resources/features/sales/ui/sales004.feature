@@ -1,3 +1,4 @@
+@ui
 Feature: Sales Empty State
 
   Scenario: TC_USER_UI_SALES_004 - Verify message when no sales exist
