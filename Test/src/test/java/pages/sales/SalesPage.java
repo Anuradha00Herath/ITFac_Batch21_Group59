@@ -1,4 +1,4 @@
-package pages;
+package pages.sales;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Locator;
@@ -31,7 +31,6 @@ public class SalesPage {
     private static final String SEL_CANCEL_BTN =
             "a.btn.btn-secondary[href='/ui/sales']:has-text('Cancel')";
     private final Locator addSaleBtn;
-    private final Locator formHeader;
 
 
     public SalesPage(Page page) {
@@ -41,7 +40,7 @@ public class SalesPage {
         page.locator("th:has-text('Plant Name')");
         page.locator("text='No sales found'");
         this.addSaleBtn = page.locator("a:has-text('Sell Plant'), button:has-text('Sell Plant')");
-        this.formHeader = page.locator("h2, h1.form-title");
+        Locator formHeader = page.locator("h2, h1.form-title");
     }
 
     public void navigate() {

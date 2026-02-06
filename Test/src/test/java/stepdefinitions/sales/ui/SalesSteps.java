@@ -3,9 +3,9 @@ package stepdefinitions.sales.ui;
 import com.microsoft.playwright.Locator;
 import hooks.UiHooks;
 import io.cucumber.java.en.*;
-import pages.SalesPage;
-import pages.LoginPage;
-import pages.PlantsPage;
+import pages.sales.SalesPage;
+import pages.sales.LoginPage;
+import pages.sales.PlantsPage;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDateTime;
