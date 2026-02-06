@@ -1,4 +1,4 @@
-package utils;
+package utils.sales;
 
 import java.util.Map;
 
@@ -8,6 +8,7 @@ import com.microsoft.playwright.options.RequestOptions;
 import hooks.Hooks;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.JsonNode;
 import io.cucumber.core.internal.com.fasterxml.jackson.databind.ObjectMapper;
+import utils.AuthManager;
 
 public class DataHelper {
     private static final String BASE_URL = "http://localhost:8080";

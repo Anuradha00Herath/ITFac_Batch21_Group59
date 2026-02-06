@@ -9,7 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
-import static utils.Config.*;
+import static utils.sales.Config.*;
 
 public class ApiAuth {
     private static final ObjectMapper OM = new ObjectMapper();

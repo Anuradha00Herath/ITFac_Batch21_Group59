@@ -1,4 +1,4 @@
-package utils;
+package utils.sales;
 
 public class Config {
     public static final String BASE_URL = env("BASE_URL", "http://localhost:8080");

@@ -1,4 +1,4 @@
-package utils;
+package utils.sales;
 
 import com.microsoft.playwright.*;
 

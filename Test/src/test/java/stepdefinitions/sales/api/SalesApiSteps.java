@@ -1,10 +1,10 @@
-package stepdefinitions.api;
+package stepdefinitions.sales.api;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import utils.ApiAuth;
-import utils.Config;
-import utils.TestContext;
+import utils.sales.Config;
+import utils.sales.TestContext;
 import io.cucumber.java.en.*;
 
 import io.restassured.RestAssured;
