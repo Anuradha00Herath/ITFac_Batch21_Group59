@@ -1,11 +1,9 @@
-package stepdefinitions.ui;
+package stepdefinitions.sales.ui;
 
 import com.microsoft.playwright.Locator;
 import hooks.Hooks;
 import io.cucumber.java.en.*;
-import pages.SalesPage;
-import pages.LoginPage;
-import pages.PlantsPage;
+import pages.sales.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.time.LocalDateTime;
@@ -40,8 +38,8 @@ public class SalesSteps {
     @Given("at least one sale record exists in the database")
     public void recordExists() {
         // Verification or API data seeding logic
-        utils.DataHelper.deleteAllSales(Hooks.page.context().request());
-        utils.DataHelper.seedSales(Hooks.page.context().request(),11);
+        utils.sales.DataHelper.deleteAllSales(Hooks.page.context().request());
+        utils.sales.DataHelper.seedSales(Hooks.page.context().request(),11);
     }
 
     @When("the user navigates to the sales list page")
@@ -64,7 +62,7 @@ public class SalesSteps {
     public void seedSalesWithDifferentDates() {
         // Use your DataHelper to seed records.
         // Note: Your backend should automatically assign different 'soldAt' times.
-        utils.DataHelper.seedSales(hooks.Hooks.page.context().request(), 11);
+        utils.sales.DataHelper.seedSales(hooks.Hooks.page.context().request(), 11);
     }
     @Then("the latest sold date should appear at the top of the table")
     public void verifyDateSorting() {
@@ -88,7 +86,7 @@ public class SalesSteps {
     @Given("multiple sales exist with different plant names")
     public void seedSalesWithNames() {
         // Use your DataHelper to ensure variety in names
-        utils.DataHelper.seedSales(hooks.Hooks.page.context().request(), 5);
+        utils.sales.DataHelper.seedSales(hooks.Hooks.page.context().request(), 5);
     }
 
     @When("the user clicks the {string} column header")
@@ -124,7 +122,7 @@ public class SalesSteps {
 
     @Given("the admin has cleared all sales records via API")
     public void clearSales() {
-        utils.DataHelper.deleteAllSales(Hooks.page.context().request());
+        utils.sales.DataHelper.deleteAllSales(Hooks.page.context().request());
     }
     @Then("a message {string} should be displayed")
     public void verifyEmptyMessage(String expectedMessage) {

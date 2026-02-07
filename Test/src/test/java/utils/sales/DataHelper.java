@@ -1,4 +1,5 @@
-package utils;
+package utils.sales;
+import utils.AuthManager;
 
 import java.util.Map;
 
