@@ -17,8 +17,6 @@ public class PlantsPage {
         page.locator(SEL_TABLE).first().waitFor();
     }
 
-    // Reads stock for a given plant name by locating the row and extracting a number from it.
-    // This avoids needing exact "stock column index" when you’re not sure.
     public int getStockForPlant(String plantName) {
         page.navigate(BASE_URL + "/ui/plants");
         page.locator("table").first().waitFor();

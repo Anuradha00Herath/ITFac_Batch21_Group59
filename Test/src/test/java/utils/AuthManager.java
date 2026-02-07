@@ -11,12 +11,16 @@ public class AuthManager {
     private static final String BASE_URL = "http://localhost:8080";
     private static final ObjectMapper OM = new ObjectMapper();
 
+    static String admin_username = EnvConfig.get("ADMIN_USERNAME");
+    static String admin_password = EnvConfig.get("ADMIN_PASSWORD");
+
+
     public static String getAdminToken() {
         if (adminToken == null) {
             Response res = RestAssured.given()
                     .baseUri(BASE_URL)
                     .contentType("application/json")
-                    .body(Map.of("username", "admin", "password", "admin123"))
+                    .body(Map.of("username", admin_username, "password", admin_password))
                     .post("/api/auth/login");
 
             if (res.statusCode() == 200) {

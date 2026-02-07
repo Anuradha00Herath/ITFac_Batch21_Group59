@@ -182,11 +182,6 @@ public class SalesPage {
         // pick first real plant option (skip placeholder "")
         select.selectOption(new SelectOption().setIndex(1));
     }
-    public void clearQuantity() {
-        Locator qty = page.locator(SEL_QTY_INPUT).first();
-        qty.waitFor();
-        qty.fill(""); // leave empty
-    }
     public void clickSubmit() {
         Locator btn = page.locator(SEL_SELL_BTN).first();
         btn.waitFor();

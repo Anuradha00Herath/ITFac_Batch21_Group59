@@ -125,9 +125,7 @@ public class SalesApiSteps {
         }
     }
 
-    // ------------------------------------------------------------------
-    // AUTH
-    // ------------------------------------------------------------------
+    //setup
     @Given("I am authenticated as {string} via API")
     public void i_am_authenticated_as_via_api(String role) {
         role = role.trim().replace("\"", "");
@@ -140,9 +138,6 @@ public class SalesApiSteps {
         assertFalse(authHeader.isBlank());
     }
 
-    // ------------------------------------------------------------------
-    // PRECONDITIONS
-    // ------------------------------------------------------------------
     @Given("plant {int} exists with stock at least {int}")
     public void plant_exists_with_stock_at_least(Integer plantId, Integer minStock) {
         ctx.plantId = String.valueOf(plantId);
@@ -161,9 +156,8 @@ public class SalesApiSteps {
         assertNotNull(ctx.capturedSaleId);
     }
 
-    // ------------------------------------------------------------------
-    // ACTIONS
-    // ------------------------------------------------------------------
+
+    //actions
     @When("I sell plant {int} with quantity {int} as {word}")
     public void i_sell_plant_as_role(Integer plantId, Integer qty, String role) {
         requireRole(role);
@@ -311,9 +305,7 @@ public class SalesApiSteps {
         ctx.lastBodyText = res.asString();
     }
 
-    // ------------------------------------------------------------------
-    // ASSERTIONS
-    // ------------------------------------------------------------------
+    //assertion
     @Then("the response status should be {int}")
     public void the_response_status_should_be(Integer code) {
         assertNotNull(ctx.lastStatus);
@@ -374,6 +366,8 @@ public class SalesApiSteps {
             throw new RuntimeException("Response is not JSON. Body: " + ctx.lastBodyText, e);
         }
     }
+
+    //helpers
 
     private static String encode(String s) {
         try {

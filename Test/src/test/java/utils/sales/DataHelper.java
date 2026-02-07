@@ -11,9 +11,8 @@ public class DataHelper {
     private static final String BASE_URL = "http://localhost:8080";
     private static final ObjectMapper OM = new ObjectMapper();
 
-    // Used for TC_USER_UI_SALES_001 (Pagination)
     public static void seedSales(APIRequestContext request, int count) {
-        String token = AuthManager.getAdminToken(); // include Bearer if needed
+        String token = AuthManager.getAdminToken();
 
         for (int i = 1; i <= count; i++) {
             int plantId = 1;
@@ -41,7 +40,6 @@ public class DataHelper {
         String token = AuthManager.getAdminToken();
         String salesUrl = BASE_URL + "/api/sales";
 
-        // 1. GET all current sales
         APIResponse getResponse = request.get(salesUrl,
                 RequestOptions.create().setHeader("Authorization", token));
 
