@@ -15,5 +15,5 @@ Feature: Plant Management - Edit Restrictions
     And the user examines each plant row in the list
     And the user looks for Edit icons or buttons
     Then the Edit actions should be hidden for all plants
-    Or the Edit actions should be disabled with permission restrictions
+    And the Edit actions should be disabled with permission restrictions
     And the user cannot access plant editing functionality

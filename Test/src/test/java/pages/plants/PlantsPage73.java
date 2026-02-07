@@ -1,9 +1,10 @@
 package pages.plants;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
-import java.util.List;
-import java.util.ArrayList;
 
 public class PlantsPage73 {
     
@@ -372,5 +373,46 @@ public class PlantsPage73 {
         
         System.out.println("Low stock plants count: " + count);
         return count;
+    }
+    
+    // ============ BUTTON VISIBILITY METHODS ============
+    
+    public Locator findButtonByText(String buttonText) {
+        return page.locator("button:has-text('" + buttonText + "'), " +
+                           "a:has-text('" + buttonText + "')");
+    }
+    
+    public boolean isButtonVisible(String buttonText) {
+        Locator button = findButtonByText(buttonText);
+        try {
+            return button.isVisible();
+        } catch (Exception e) {
+            System.out.println("Button '" + buttonText + "' not found");
+            return false;
+        }
+    }
+    
+    public boolean isButtonHidden(String buttonText) {
+        return !isButtonVisible(buttonText);
+    }
+    
+    public boolean isButtonDisabled(String buttonText) {
+        Locator button = findButtonByText(buttonText);
+        try {
+            String disabledAttr = button.getAttribute("disabled");
+            String ariaDisabled = button.getAttribute("aria-disabled");
+            return "true".equals(disabledAttr) || "true".equals(ariaDisabled);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+    
+    public boolean canClickButton(String buttonText) {
+        Locator button = findButtonByText(buttonText);
+        try {
+            return button.isEnabled() && button.isVisible();
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

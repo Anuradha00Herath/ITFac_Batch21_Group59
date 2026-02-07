@@ -15,5 +15,5 @@ Feature: Plant Management - Delete Restrictions
     And the user examines each plant row in the list
     And the user looks for Delete icons or buttons
     Then the Delete actions should be hidden for all plants
-    Or the Delete actions should be disabled with permission restrictions
+    And the Delete actions should be disabled with permission restrictions
     And the user cannot access plant deletion functionality

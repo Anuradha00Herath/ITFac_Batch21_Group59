@@ -14,5 +14,5 @@ Feature: Plant Management - User Role Permissions
     When the user navigates to the plants page
     And the user searches for the "Add Plant" button
     Then the "Add Plant" button should be hidden (not rendered)
-    Or the button should be visible but disabled with permission tooltip
+    And the button should be visible but disabled with permission tooltip
     And the user cannot initiate plant creation from the UI
