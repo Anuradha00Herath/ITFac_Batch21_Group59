@@ -245,27 +245,6 @@ public class PlantsApiSteps {
         ctx.lastBodyText = res.asString();
     }
 
-    @Then("the response status should be 404 or 200 with empty list for invalid category")
-    public void the_response_status_404_or_200_empty_for_invalid_category() {
-        assertNotNull(ctx.lastStatus, "No response status captured.");
-        if (ctx.lastStatus == 404) {
-            return;
-        }
-        if (ctx.lastStatus == 200) {
-            JsonNode json;
-            try {
-                json = OM.readTree(ctx.lastBodyText != null ? ctx.lastBodyText : "[]");
-            } catch (Exception e) {
-                fail("Invalid JSON: " + ctx.lastBodyText);
-                return;
-            }
-            JsonNode list = json.isArray() ? json : firstArray(json.get("data"), json.get("content"), json.get("items"));
-            assertTrue(list == null || (list.isArray() && list.size() == 0),
-                    "Expected 404 or 200 with empty list. Got 200 with body: " + ctx.lastBodyText);
-            return;
-        }
-        fail("Expected 404 or 200 with empty list. Got status " + ctx.lastStatus + ". Body: " + ctx.lastBodyText);
-    }
 
     @Given("a valid category id exists")
     public void a_valid_category_id_exists() {
