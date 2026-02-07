@@ -16,7 +16,8 @@ public class Hooks {
     public void beforeUi() {
         ctx.playwright = Playwright.create();
         ctx.browser = ctx.playwright.chromium().launch(new BrowserType.LaunchOptions()
-                .setHeadless(false));
+                .setHeadless(false)
+                .setSlowMo(800));                
         ctx.browserContext = ctx.browser.newContext();
         ctx.page = ctx.browserContext.newPage();
         ctx.page.onDialog(dialog -> ctx.pendingDialog = dialog);
