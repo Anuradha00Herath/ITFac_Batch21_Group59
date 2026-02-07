@@ -2,7 +2,7 @@ package pages.category;
 
 import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
-import support.Config;
+import utils.category.Config;
 import java.util.Map;
 
 public class CategoryApiPage {

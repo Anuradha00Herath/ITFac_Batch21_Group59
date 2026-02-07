@@ -1,12 +1,12 @@
-package steps.ui;
+package stepdefinitions.category.ui;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
 import io.cucumber.java.en.*;
 import pages.category.CategoryUiPage;
 import pages.dashboard.DashboardPage;
-import support.PlaywrightManager;
-import support.Config;
+import utils.category.PlaywrightManager;
+import utils.category.Config;
 
 import static org.junit.jupiter.api.Assertions.*;
 

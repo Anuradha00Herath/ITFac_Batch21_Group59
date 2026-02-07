@@ -1,4 +1,4 @@
-package support;
+package utils.category;
 
 import com.microsoft.playwright.*;
 import io.cucumber.java.*;

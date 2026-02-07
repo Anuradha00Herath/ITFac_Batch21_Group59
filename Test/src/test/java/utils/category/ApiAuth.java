@@ -1,4 +1,4 @@
-package support;
+package utils.category;
 
 import io.restassured.response.Response;
 

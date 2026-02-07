@@ -1,4 +1,4 @@
-package support;
+package utils.category;
 
 public class Config {
     // Base URLs
@@ -23,7 +23,7 @@ public class Config {
 
     private static String env(String key, String def) {
         String v = System.getenv(key);
-        return (v == null || v.isBlank()) ? def : v;
+        return (v == null ) ? def : v;
     }
 
     public record Creds(String username, String password) {}

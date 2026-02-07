@@ -3,7 +3,7 @@ package pages.category;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.options.LoadState;
-import support.Config;
+import utils.category.Config;
 
 public class CategoryUiPage {
     
@@ -38,9 +38,7 @@ public class CategoryUiPage {
             throw e;
         }
     }
-    
-    // ================= Helpers =================
-    
+        
     private Locator getAllRows() {
         return page.locator("table tbody tr");
     }

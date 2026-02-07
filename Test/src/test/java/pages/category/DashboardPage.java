@@ -2,7 +2,7 @@ package pages.dashboard;
 
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.LoadState;
-import support.Config;
+import utils.category.Config;
 
 public class DashboardPage {
 

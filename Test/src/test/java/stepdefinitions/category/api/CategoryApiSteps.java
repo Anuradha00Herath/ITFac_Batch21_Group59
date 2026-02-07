@@ -1,9 +1,9 @@
-package steps.api;
+package stepdefinitions.category.api;
 
 import io.cucumber.java.en.*;
 import io.restassured.response.Response;
 import pages.category.CategoryApiPage;
-import support.ApiAuth;
+import utils.category.ApiAuth;
 
 import java.util.HashMap;
 import java.util.List;
@@ -22,7 +22,6 @@ public class CategoryApiSteps {
     private Map<String, Object> originalCategoryData;
     private final CategoryApiPage categoryApiPage = new CategoryApiPage();
 
-    // ============== GIVEN Steps ==============
     
     @Given("I am authenticated as {string}")
     public void iAmAuthenticatedAs(String role) {
@@ -52,52 +51,89 @@ public class CategoryApiSteps {
         iGetValidCategoryIdFromSystem();
     }
 
-    @Given("category with no associated plants exists")
-    public void categoryWithNoAssociatedPlantsExists() {
-        response = categoryApiPage.getAllCategories(token);
-        assertEquals(200, response.getStatusCode(), "Should be able to fetch categories");
+   @Given("category with no associated plants exists")
+public void categoryWithNoAssociatedPlantsExists() {
+    System.out.println("Searching for existing category with no plant dependencies...");
+    
+    response = categoryApiPage.getAllCategories(token);
+    assertEquals(200, response.getStatusCode(), "Should be able to fetch categories");
+    
+    List<Map<String, Object>> categories = response.jsonPath().getList("$");
+    assertFalse(categories.isEmpty(), "At least one category should exist in system");
+    
+    System.out.println("Total categories found: " + categories.size());
+    
+    // Check each category to find one without plants
+    for (Map<String, Object> category : categories) {
+        String categoryId = category.get("id").toString();
         
-        List<Map<String, Object>> categories = response.jsonPath().getList("$");
-        assertFalse(categories.isEmpty(), "At least one category should exist");
+        // Fetch full details of this category to check for plants
+        Response categoryDetailResponse = categoryApiPage.getCategoryById(token, categoryId);
         
-        // Strategy 1: Look for categories with explicit plant count = 0
-        for (Map<String, Object> category : categories) {
-            String[] plantCountFields = {"plantCount", "plant_count", "plantsCount", "plants_count", "associatedPlants", "numberOfPlants"};
+        if (categoryDetailResponse.getStatusCode() == 200) {
+            Map<String, Object> categoryDetails = categoryDetailResponse.jsonPath().getMap("$");
+            
+            System.out.println("\nChecking Category ID: " + categoryId);
+            System.out.println("  Name: " + categoryDetails.get("name"));
+            
+            // Look for plant count fields
+            String[] plantCountFields = {
+                "plantCount", "plant_count", "plantsCount", "plants_count", 
+                "associatedPlants", "numberOfPlants", "plants", "totalPlants"
+            };
+            
+            boolean hasPlantField = false;
+            int plantCount = -1;
             
             for (String field : plantCountFields) {
-                if (category.containsKey(field)) {
-                    Object countValue = category.get(field);
-                    if (countValue != null) {
-                        int count = Integer.parseInt(countValue.toString());
-                        if (count == 0) {
-                            categoryIdWithoutDependencies = category.get("id").toString();
-                            System.out.println("Found category without plant dependencies (count=0): " + categoryIdWithoutDependencies);
-                            return;
+                if (categoryDetails.containsKey(field)) {
+                    Object value = categoryDetails.get(field);
+                    hasPlantField = true;
+                    System.out.println("  " + field + ": " + value);
+                    
+                    if (value != null) {
+                        try {
+                            // Handle both integer and list types
+                            if (value instanceof List) {
+                                plantCount = ((List<?>) value).size();
+                            } else if (value instanceof Integer) {
+                                plantCount = (Integer) value;
+                            } else {
+                                plantCount = Integer.parseInt(value.toString());
+                            }
+                            
+                            if (plantCount == 0) {
+                                categoryIdWithoutDependencies = categoryId;
+                                System.out.println("✓ Found category without plants!");
+                                System.out.println("  Category ID: " + categoryId);
+                                System.out.println("  Category Name: " + categoryDetails.get("name"));
+                                System.out.println("  Plant Count: 0");
+                                return;
+                            } else {
+                                System.out.println("  ✗ Category has " + plantCount + " plants - skipping");
+                            }
+                            break;
+                        } catch (Exception e) {
+                            System.out.println("  Warning: Could not parse plant count: " + e.getMessage());
                         }
                     }
                 }
             }
-        }
-        
-        // Strategy 2: Create a new temporary category for deletion
-        System.out.println("No category found with plant count = 0. Creating a temporary category for deletion test...");
-        Map<String, Object> newCategory = new HashMap<>();
-        newCategory.put("name", "TempCategoryForDeletion_" + System.currentTimeMillis());
-        newCategory.put("parentId", null);
-        
-        Response createResponse = categoryApiPage.createCategory(token, newCategory);
-        if (createResponse.getStatusCode() == 201 || createResponse.getStatusCode() == 200) {
-            Map<String, Object> createdCategory = createResponse.jsonPath().getMap("$");
-            categoryIdWithoutDependencies = createdCategory.get("id").toString();
-            System.out.println("Created temporary category for deletion: " + categoryIdWithoutDependencies);
-        } else {
-            // Strategy 3: Use the newest category (least likely to have dependencies)
-            categoryIdWithoutDependencies = categories.get(categories.size() - 1).get("id").toString();
-            System.out.println("WARNING: Using category ID (may have dependencies): " + categoryIdWithoutDependencies);
+            
+            // If no plant field found, assume no plants associated
+            if (!hasPlantField) {
+                categoryIdWithoutDependencies = categoryId;
+                System.out.println("✓ Found category without plant fields (assuming no plants)!");
+                System.out.println("  Category ID: " + categoryId);
+                System.out.println("  Category Name: " + categoryDetails.get("name"));
+                System.out.println("  Note: API doesn't return plant information for this category");
+                return;
+            }
         }
     }
-
-    // ============== WHEN Steps ==============
+    
+    fail("No suitable category found for deletion test.");
+}
     
     @When("I authenticate as {string}")
     public void iAuthenticateAs(String role) {
