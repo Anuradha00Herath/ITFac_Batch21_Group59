@@ -30,13 +30,14 @@ Feature: Category Management UI - Admin
     Given User is logged in as Admin
     When Navigate to Categories page
     And Click Edit for any category
-    And Change Category Name to "Temp_Name"
+    And Change Category Name to "Temp"
     And Click Cancel button
     Then Category name remains unchanged in the list
 
-  @admin @ui
-  Scenario: Delete category
-    Given User is logged in as Admin
-    When Navigate to Categories page
-    And Click Delete for first category
-    Then Category is removed from the list
+@admin @ui
+Scenario: Delete category
+  Given User is logged in as Admin
+  When Navigate to Categories page
+  And Click Delete for first category
+  And Confirm delete in confirmation dialog
+  Then Category is removed from the list

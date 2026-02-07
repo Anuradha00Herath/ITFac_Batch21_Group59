@@ -51,9 +51,6 @@ public class CategoryUiPage {
         return rows.first();
     }
     
-    // ================= Actions =================
-    
-    /** Get category name from first row */
     public String getFirstCategoryName() {
         page.waitForTimeout(500);
         String name = getFirstRow().locator("td").first().innerText().trim();
@@ -61,13 +58,11 @@ public class CategoryUiPage {
         return name;
     }
     
-    /** Click EDIT for first available category - Edit is a LINK */
     public void clickEditFirstCategory() {
         System.out.println("Clicking Edit link for first category");
         page.waitForTimeout(500);
         
         try {
-            // Edit is a LINK (anchor tag) with href containing "/categories/edit/"
             Locator editLink = getFirstRow().locator("a[href*='/categories/edit/']");
             
             if (editLink.count() == 0) {
@@ -84,25 +79,14 @@ public class CategoryUiPage {
             
         } catch (Exception e) {
             System.err.println("Failed to click Edit link: " + e.getMessage());
-            
-            // Debug: show all links and buttons
-            Locator allLinks = getFirstRow().locator("td:last-child a");
-            Locator allButtons = getFirstRow().locator("td:last-child button");
-            System.out.println("Total links in Actions column: " + allLinks.count());
-            System.out.println("Total buttons in Actions column: " + allButtons.count());
-            
-            for (int i = 0; i < allLinks.count(); i++) {
-                System.out.println("  Link " + i + ": " + allLinks.nth(i).getAttribute("href"));
-            }
-            for (int i = 0; i < allButtons.count(); i++) {
-                System.out.println("  Button " + i + ": " + allButtons.nth(i).getAttribute("title"));
-            }
-            
             throw new RuntimeException("Could not click Edit link for first category", e);
         }
     }
     
-    /** Click DELETE for first available category - Delete is a BUTTON */
+    /**
+     * Click delete button for first category
+     * Sets up handler for browser-native window.confirm() dialog
+     */
     public void clickDeleteFirstCategory() {
         System.out.println("Clicking Delete button for first category");
         page.waitForTimeout(500);
@@ -139,8 +123,10 @@ public class CategoryUiPage {
             System.out.println("Found Delete button, title: " + title);
             
             deleteButton.click();
-            page.waitForLoadState(LoadState.NETWORKIDLE);
-            System.out.println("Successfully clicked Delete button");
+            System.out.println("Successfully clicked Delete button - window.confirm() dialog will appear");
+            
+            // Wait a bit for dialog to appear
+            page.waitForTimeout(300);
             
         } catch (Exception e) {
             System.err.println("Failed to click Delete button: " + e.getMessage());
@@ -155,9 +141,9 @@ public class CategoryUiPage {
                 System.out.println("  Link " + i + ": " + allLinks.nth(i).getAttribute("href"));
             }
             for (int i = 0; i < allButtons.count(); i++) {
-                String title = allButtons.nth(i).getAttribute("title");
+                String btnTitle = allButtons.nth(i).getAttribute("title");
                 String text = allButtons.nth(i).textContent();
-                System.out.println("  Button " + i + " - title: '" + title + "', text: '" + text + "'");
+                System.out.println("  Button " + i + " - title: '" + btnTitle + "', text: '" + text + "'");
             }
             
             throw new RuntimeException("Could not click Delete button for first category", e);
@@ -233,7 +219,13 @@ public class CategoryUiPage {
                 if (locator.count() > 0) {
                     System.out.println("Found " + action + " element using selector: " + selector);
                     locator.first().click();
-                    page.waitForLoadState(LoadState.NETWORKIDLE);
+                    
+                    // Only wait for network idle for Edit (navigation), not Delete (dialog)
+                    if (action.equals("Edit")) {
+                        page.waitForLoadState(LoadState.NETWORKIDLE);
+                    } else {
+                        page.waitForTimeout(300); // Just wait for dialog to appear
+                    }
                     return;
                 }
             } catch (Exception e) {
@@ -287,36 +279,56 @@ public class CategoryUiPage {
     
     // ================= Delete Confirmation =================
     
+    /**
+     * Confirms deletion by accepting browser-native window.confirm() dialog
+     * Based on Cypress implementation: cy.on('window:confirm', () => true)
+     */
     public void confirmDelete() {
-        page.waitForTimeout(1000);
+        System.out.println("Setting up handler to ACCEPT browser confirmation dialog...");
         
-        System.out.println("Looking for delete confirmation dialog...");
+        // Handle browser-native window.confirm() dialog
+        page.onceDialog(dialog -> {
+            System.out.println("✓ Browser confirmation dialog detected:");
+            System.out.println("  Type: " + dialog.type());
+            System.out.println("  Message: " + dialog.message());
+            
+            // Verify it's a confirmation dialog about deletion
+            String message = dialog.message().toLowerCase();
+            if (message.contains("delete")) {
+                System.out.println("  ✓ Confirmed it's a delete confirmation");
+            }
+            
+            dialog.accept(); // Click OK (equivalent to Cypress: return true)
+            System.out.println("  ✓ Accepted dialog - deletion confirmed");
+        });
         
-        String[] selectors = {
-            "button:has-text('Confirm')",
-            "button:has-text('Yes')",
-            "button:has-text('Delete')",
-            "button:has-text('OK')",
-            "button.btn-danger",
-            "button[data-confirm='true']",
-            ".modal button:has-text('Confirm')",
-            ".modal button:has-text('Yes')",
-            ".modal button:has-text('Delete')"
-        };
+        // Wait for page to process the deletion
+        page.waitForTimeout(500);
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        System.out.println("✓ Delete confirmation completed");
+    }
+    
+    /**
+     * Cancels deletion by dismissing browser-native window.confirm() dialog
+     * Based on Cypress implementation: cy.on('window:confirm', () => false)
+     */
+    public void cancelDelete() {
+        System.out.println("Setting up handler to DISMISS browser confirmation dialog...");
         
-        for (String selector : selectors) {
-            try {
-                if (page.locator(selector).count() > 0) {
-                    System.out.println("Found confirmation button using selector: " + selector);
-                    page.click(selector);
-                    page.waitForLoadState(LoadState.NETWORKIDLE);
-                    System.out.println("Clicked confirmation button");
-                    return;
-                }
-            } catch (Exception e) { }
-        }
+        // Handle browser-native window.confirm() dialog
+        page.onceDialog(dialog -> {
+            System.out.println("✓ Browser confirmation dialog detected:");
+            System.out.println("  Type: " + dialog.type());
+            System.out.println("  Message: " + dialog.message());
+            
+            dialog.dismiss(); // Click Cancel (equivalent to Cypress: return false)
+            System.out.println("  ✓ Dismissed dialog - deletion cancelled");
+        });
         
-        System.out.println("No confirmation dialog found, deletion may not require confirmation");
+        // Wait for page to process
+        page.waitForTimeout(500);
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        System.out.println("✓ Delete cancellation completed");
     }
     
     // ================= Validations =================
@@ -428,40 +440,37 @@ public class CategoryUiPage {
     }
     
     public boolean areDeleteButtonsHidden() {
+        page.waitForTimeout(1000);
 
-    page.waitForTimeout(1000);
+        Locator deleteButtons = page.locator("table button[title='Delete']");
+        int count = deleteButtons.count();
 
-    Locator deleteButtons = page.locator("table button[title='Delete']");
-    int count = deleteButtons.count();
+        System.out.println("Delete button count for regular user: " + count);
 
-    System.out.println("Delete button count for regular user: " + count);
+        // ✅ No delete buttons at all → PASS
+        if (count == 0) {
+            System.out.println("✓ Delete buttons are hidden for regular user");
+            return true;
+        }
 
-    // ✅ No delete buttons at all → PASS
-    if (count == 0) {
-        System.out.println("Delete buttons are hidden for regular user");
+        // 🔍 Delete buttons exist → must ALL be disabled
+        for (int i = 0; i < count; i++) {
+            Locator button = deleteButtons.nth(i);
+
+            boolean visible = button.isVisible();
+            boolean enabled = button.isEnabled();
+
+            System.out.println("Delete button " + i +
+                    " | visible=" + visible +
+                    " | enabled=" + enabled);
+
+            if (visible && enabled) {
+                System.out.println("❌ Delete button is ENABLED for regular user!");
+                return false;
+            }
+        }
+
+        System.out.println("Delete buttons are disabled for regular user");
         return true;
     }
-
-    // 🔍 Delete buttons exist → must ALL be disabled
-    for (int i = 0; i < count; i++) {
-        Locator button = deleteButtons.nth(i);
-
-        boolean visible = button.isVisible();
-        boolean enabled = button.isEnabled();
-
-        System.out.println("Delete button " + i +
-                " | visible=" + visible +
-                " | enabled=" + enabled);
-
-        if (visible && enabled) {
-            System.out.println("Delete button is ENABLED for regular user!");
-            return false;
-        }
-    }
-
-    // ✅ Buttons exist but disabled
-    System.out.println("✓ Delete buttons are disabled for regular user");
-    return true;
-}
-
 }

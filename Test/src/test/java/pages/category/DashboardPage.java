@@ -17,13 +17,8 @@ public class DashboardPage {
         page.waitForLoadState(LoadState.NETWORKIDLE);
         page.waitForTimeout(2000);
         
-        System.out.println("Dashboard URL: " + page.url());
-        System.out.println("Dashboard page title: " + page.title());
         
-        // Debug: Print first 500 characters of page content
-        String bodyText = page.locator("body").textContent();
-        System.out.println("Dashboard content preview: " + 
-            bodyText.substring(0, Math.min(500, bodyText.length())));
+
     }
 
     public boolean isCategorySummaryDisplayed() {
@@ -50,20 +45,8 @@ public class DashboardPage {
                     return true;
                 }
             } catch (Exception e) {
-                // Continue to next selector
             }
         }
-        
-        // Debug: Show what's actually on the page
-        System.out.println("No category summary found");
-        System.out.println("Available headings:");
-        page.locator("h1, h2, h3, h4, h5, h6").all().forEach(heading -> 
-            System.out.println("  - " + heading.textContent()));
-        
-        System.out.println("Available cards/divs with class:");
-        page.locator("[class*='card'], [class*='summary']").all().forEach(card -> 
-            System.out.println("  - Class: " + card.getAttribute("class") + " | Text: " + 
-                card.textContent().substring(0, Math.min(50, card.textContent().length()))));
         
         return false;
     }
@@ -167,12 +150,6 @@ public class DashboardPage {
                 // Continue
             }
         }
-        
-        // Debug: Show active menu items
-        System.out.println("No active Dashboard menu found");
-        System.out.println("Active menu items:");
-        page.locator("[class*='active']").all().forEach(item -> 
-            System.out.println("  - Class: " + item.getAttribute("class") + " | Text: " + item.textContent()));
         
         return false;
     }

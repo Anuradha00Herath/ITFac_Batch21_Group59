@@ -17,6 +17,7 @@ public class CategoryUiSteps {
     private final DashboardPage dashboardPage = new DashboardPage(page);
     
     private String originalCategoryName;
+    private boolean dialogHandlerSet = false;
 
     @Given("User is logged in as Admin")
     public void userIsLoggedInAsAdmin() {
@@ -99,13 +100,54 @@ public class CategoryUiSteps {
     }
 
     @When("Click Delete for first category")
-    public void clickDeleteForFirstCategory() {
-        System.out.println("Clicking Delete for first category");
-        page.waitForTimeout(1000);
+public void clickDeleteForFirstCategory() {
+    System.out.println("Clicking Delete for first category AND handling dialog");
+    page.waitForTimeout(1000);
+    
+    // Store the category name before deletion
+    originalCategoryName = categoryUiPage.getFirstCategoryName();
+    System.out.println("Category to be deleted: '" + originalCategoryName + "'");
+    
+    // Set up handler to AUTO-ACCEPT the dialog
+    page.onDialog(dialog -> {
+        System.out.println("✓ Dialog auto-accepted:");
+        System.out.println("  Message: " + dialog.message());
+        dialog.accept();
+    });
+    
+    // Click delete button
+    categoryUiPage.clickDeleteFirstCategory();
+    
+    // Wait for deletion to process
+    page.waitForTimeout(500);
+    System.out.println("✓ Delete clicked and dialog handled");
+}
+
+@When("Confirm delete in confirmation dialog")
+public void confirmDeleteInConfirmationDialog() {
+    // This step is now just a formality - deletion already happened
+    System.out.println("✓ Confirmation step (deletion already processed)");
+    page.waitForLoadState(LoadState.NETWORKIDLE);
+}
+
+    @When("Cancel delete in confirmation dialog")
+    public void cancelDeleteInConfirmationDialog() {
+        System.out.println("Cancelling deletion in browser dialog");
         
-        // Use direct position-based method (more reliable)
-        categoryUiPage.clickDeleteFirstCategory();
-        categoryUiPage.confirmDelete();
+        // Replace the dialog handler to dismiss the dialog
+        page.onDialog(dialog -> {
+            System.out.println("✓ Handling confirmation dialog:");
+            System.out.println("  Type: " + dialog.type());
+            System.out.println("  Message: " + dialog.message());
+            dialog.dismiss(); // Click Cancel
+            System.out.println("  ✓ Dismissed - deletion cancelled");
+        });
+        
+        page.waitForTimeout(500);
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        System.out.println("✓ Delete cancellation completed");
+        
+        dialogHandlerSet = false;
     }
 
     @When("Click Edit for category {string}")
@@ -130,8 +172,28 @@ public class CategoryUiSteps {
 
     @When("Click Delete for category {string}")
     public void clickDeleteCategory(String name) {
+        System.out.println("Clicking Delete for category: '" + name + "'");
+        originalCategoryName = name; // Store for verification
+        
+        // Set up dialog handler BEFORE clicking
+        page.onDialog(dialog -> {
+            System.out.println("⚠️ Dialog appeared for category: " + name);
+            dialogHandlerSet = true;
+        });
+        
         categoryUiPage.clickDeleteByCategoryName(name);
-        categoryUiPage.confirmDelete();
+    }
+
+    @When("Confirm delete for category {string}")
+    public void confirmDeleteForCategory(String name) {
+        page.onDialog(dialog -> {
+            System.out.println("✓ Confirming deletion of category: " + name);
+            dialog.accept();
+        });
+        
+        page.waitForTimeout(500);
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        dialogHandlerSet = false;
     }
 
     @Then("Edit page is opened")
@@ -174,7 +236,31 @@ public class CategoryUiSteps {
         boolean isOnListPage = page.url().contains("/categories");
         assertTrue(isOnListPage, "Should be on categories list page after deletion");
         
-        System.out.println("Category deletion completed successfully");
+        // Verify the category is actually removed
+        if (originalCategoryName != null && !originalCategoryName.isEmpty()) {
+            assertFalse(categoryUiPage.isCategoryVisible(originalCategoryName),
+                "Category '" + originalCategoryName + "' should be removed from the list");
+            System.out.println("✓ Category '" + originalCategoryName + "' successfully deleted");
+        } else {
+            System.out.println("✓ Category deletion completed successfully");
+        }
+    }
+
+    @Then("Category is NOT removed from the list")
+    public void categoryIsNotRemovedFromList() {
+        page.waitForLoadState(LoadState.NETWORKIDLE);
+        page.waitForTimeout(1000);
+        
+        // Verify we're still on the categories page
+        boolean isOnListPage = page.url().contains("/categories");
+        assertTrue(isOnListPage, "Should still be on categories list page after cancel");
+        
+        // Verify the category is still present
+        if (originalCategoryName != null && !originalCategoryName.isEmpty()) {
+            assertTrue(categoryUiPage.isCategoryVisible(originalCategoryName),
+                "Category '" + originalCategoryName + "' should NOT be removed from the list after cancel");
+            System.out.println("✓ Category '" + originalCategoryName + "' still exists (deletion was cancelled)");
+        }
     }
 
     @Then("Edit Category page is displayed for ID {string}")
@@ -200,6 +286,13 @@ public class CategoryUiSteps {
         page.waitForTimeout(1500); // Wait for deletion to complete
         assertFalse(categoryUiPage.isCategoryVisible(name),
             "Category '" + name + "' should be removed from the list");
+    }
+
+    @Then("Category {string} is NOT removed from the list")
+    public void verifyCategoryNotDeleted(String name) {
+        page.waitForTimeout(1000);
+        assertTrue(categoryUiPage.isCategoryVisible(name),
+            "Category '" + name + "' should NOT be removed from the list");
     }
 
     @Then("\"Add Category\" button is NOT visible")
