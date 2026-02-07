@@ -9,16 +9,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.Map;
 
-import static utils.Config.*;
+import static utils.sales.Config.*;
 
 public class ApiAuth {
     private static final ObjectMapper OM = new ObjectMapper();
-
-    /**
-     * Returns the full Authorization header value:
-     * - "Bearer <jwt>" if login returns a token
-     * - or "Basic <base64>" if backend requires Basic Auth
-     */
     public static String getAuthHeader(String role) {
         Creds c = creds(role);
 
