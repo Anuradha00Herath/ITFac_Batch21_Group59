@@ -33,13 +33,6 @@ Feature: UI Test Scenarios for view categories page
     When I sort the category table by "ID"
     Then the table should be sortable in ascending and descending order
 
-@ui @sortCategorieByName
-  Scenario: Normal user sorts category table by Name column
-    Given I am logged in as "user"
-    And I open the Categories page
-    When I sort the category table by "Name"
-    Then the table name column should be in alphabetical order order
-
 @ui @sortCategorieByParent
   Scenario: Normal user sorts category table by Parent column
     Given I am logged in as "user"

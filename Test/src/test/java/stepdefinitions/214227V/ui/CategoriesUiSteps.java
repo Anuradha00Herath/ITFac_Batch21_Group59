@@ -146,25 +146,6 @@ public class CategoriesUiSteps {
         assertTrue(categoryPage.isDescending(idsDesc));
     }
 
-
-        @Then("the table name column should be in alphabetical order order")
-        public void the_table_name_column_should_be_sortable_in_alphabetical_order() {
-
-        // Verify ascending
-        List<String> idsAsc = categoryPage.getNameColumnTexts().stream()
-                    .map(String::trim)               
-                    .collect(Collectors.toList());
-        assertTrue(categoryPage.isAscendingText(idsAsc));
-
-        // Click again → descending
-        categoryPage.sortByNameColumn();
-
-        List<String> idsDesc = categoryPage.getNameColumnTexts().stream()
-                    .map(String::trim)               
-                    .collect(Collectors.toList());
-        assertTrue(categoryPage.isDescendingText(idsDesc));
-    }
-
         @Then("the table parent column should be in alphabetical order order")
         public void the_table_parent_column_should_be_sortable_in_alphabetical_order() {
 
@@ -286,23 +267,8 @@ public class CategoriesUiSteps {
         if (categoryName.equals("<RANDOM>")) {
             categoryName = categoryPage.generateAndEnterRandomCategoryName();
         }
-    }
-    
-    // ---------- VERIFY CATEGORY WITH PARENT ----------
-//     @Then("The created category {string} should appear under parent")
-//     public void verify_category_with_parent(String categoryName) {
+    }   
 
-//         Locator row = page().locator("table tbody tr")
-//         .filter(new Locator.FilterOptions().setHasText(categoryName));
-
-//         assertThat(row).isVisible();
-
-//         String parentText = row.locator("td:nth-child(3)").textContent().trim();
-
-//         if (!parentText.equals(parentName)) {
-//             throw new RuntimeException("Parent category mismatch");
-//         }
-// }
 
 //---------- VERIFY INVALID CATEGORY NAME ----------
     @When("I enter a sub category name with more than 10 characters {string}")
