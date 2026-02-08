@@ -20,12 +20,12 @@ public class PlaywrightManager {
         return page;
     }
 
-    public static void close() {
-        if (playwright != null) {
-            playwright.close();
-            page = null;
-            browser = null;
-            playwright = null;
-        }
-    }
+    // public static void close() {
+    //     if (playwright != null) {
+    //         playwright.close();
+    //         page = null;
+    //         browser = null;
+    //         playwright = null;
+    //     }
+    // }
 }

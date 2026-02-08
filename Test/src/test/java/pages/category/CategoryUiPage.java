@@ -83,73 +83,6 @@ public class CategoryUiPage {
         }
     }
     
-    /**
-     * Click delete button for first category
-     * Sets up handler for browser-native window.confirm() dialog
-     */
-    public void clickDeleteFirstCategory() {
-        System.out.println("Clicking Delete button for first category");
-        page.waitForTimeout(500);
-        
-        try {
-            // Delete is a BUTTON with title="Delete"
-            Locator deleteButton = getFirstRow().locator("button[title='Delete']");
-            
-            if (deleteButton.count() == 0) {
-                System.out.println("Delete button with title='Delete' not found, trying alternatives...");
-                
-                // Try alternative selectors
-                String[] selectors = {
-                    "button:has-text('Delete')",
-                    "button.delete-btn",
-                    "button[data-action='delete']",
-                    "td:last-child button"
-                };
-                
-                for (String selector : selectors) {
-                    deleteButton = getFirstRow().locator(selector);
-                    if (deleteButton.count() > 0) {
-                        System.out.println("Found Delete button using selector: " + selector);
-                        break;
-                    }
-                }
-            }
-            
-            if (deleteButton.count() == 0) {
-                throw new RuntimeException("Delete button not found in Actions column");
-            }
-            
-            String title = deleteButton.getAttribute("title");
-            System.out.println("Found Delete button, title: " + title);
-            
-            deleteButton.click();
-            System.out.println("Successfully clicked Delete button - window.confirm() dialog will appear");
-            
-            // Wait a bit for dialog to appear
-            page.waitForTimeout(300);
-            
-        } catch (Exception e) {
-            System.err.println("Failed to click Delete button: " + e.getMessage());
-            
-            // Debug: show all links and buttons
-            Locator allLinks = getFirstRow().locator("td:last-child a");
-            Locator allButtons = getFirstRow().locator("td:last-child button");
-            System.out.println("Total links in Actions column: " + allLinks.count());
-            System.out.println("Total buttons in Actions column: " + allButtons.count());
-            
-            for (int i = 0; i < allLinks.count(); i++) {
-                System.out.println("  Link " + i + ": " + allLinks.nth(i).getAttribute("href"));
-            }
-            for (int i = 0; i < allButtons.count(); i++) {
-                String btnTitle = allButtons.nth(i).getAttribute("title");
-                String text = allButtons.nth(i).textContent();
-                System.out.println("  Button " + i + " - title: '" + btnTitle + "', text: '" + text + "'");
-            }
-            
-            throw new RuntimeException("Could not click Delete button for first category", e);
-        }
-    }
-    
     /** Click EDIT by category name - Edit is a LINK */
     public void clickEditByCategoryName(String name) {
         System.out.println("Looking for Edit link for category: '" + name + "'");
@@ -280,55 +213,137 @@ public class CategoryUiPage {
     // ================= Delete Confirmation =================
     
     /**
-     * Confirms deletion by accepting browser-native window.confirm() dialog
-     * Based on Cypress implementation: cy.on('window:confirm', () => true)
+     * Click delete button for first category and handle the confirmation dialog
+     * This method sets up the dialog handler BEFORE clicking to ensure proper handling
      */
-    public void confirmDelete() {
-        System.out.println("Setting up handler to ACCEPT browser confirmation dialog...");
+    public void clickDeleteFirstCategoryAndConfirm() {
+        System.out.println("Clicking Delete button for first category and confirming");
+        page.waitForTimeout(500);
         
-        // Handle browser-native window.confirm() dialog
-        page.onceDialog(dialog -> {
+        // ✅ CRITICAL: Set up dialog handler BEFORE clicking the button
+        page.onDialog(dialog -> {
             System.out.println("✓ Browser confirmation dialog detected:");
             System.out.println("  Type: " + dialog.type());
             System.out.println("  Message: " + dialog.message());
             
-            // Verify it's a confirmation dialog about deletion
-            String message = dialog.message().toLowerCase();
-            if (message.contains("delete")) {
-                System.out.println("  ✓ Confirmed it's a delete confirmation");
+            try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } try {
+            // ✅ Keep dialog visible for 2 seconds before accepting
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+            dialog.accept();
+            System.out.println("  ✓ Dialog accepted - deletion confirmed");
+        });
+        
+        try {
+            // Delete is a BUTTON with title="Delete"
+            Locator deleteButton = getFirstRow().locator("button[title='Delete']");
+            
+            if (deleteButton.count() == 0) {
+                System.out.println("Delete button with title='Delete' not found, trying alternatives...");
+                
+                String[] selectors = {
+                    "button:has-text('Delete')",
+                    "button.delete-btn",
+                    "button[data-action='delete']",
+                    "td:last-child button"
+                };
+                
+                for (String selector : selectors) {
+                    deleteButton = getFirstRow().locator(selector);
+                    if (deleteButton.count() > 0) {
+                        System.out.println("Found Delete button using selector: " + selector);
+                        break;
+                    }
+                }
             }
             
-            dialog.accept(); // Click OK (equivalent to Cypress: return true)
-            System.out.println("  ✓ Accepted dialog - deletion confirmed");
-        });
-        
-        // Wait for page to process the deletion
-        page.waitForTimeout(500);
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        System.out.println("✓ Delete confirmation completed");
+            if (deleteButton.count() == 0) {
+                throw new RuntimeException("Delete button not found in Actions column");
+            }
+            
+            String title = deleteButton.getAttribute("title");
+            System.out.println("Found Delete button, title: " + title);
+            
+            // Click the button - dialog will be auto-handled by the handler above
+            deleteButton.click();
+            System.out.println("✓ Delete button clicked");
+            
+            // Wait for the deletion to complete
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForTimeout(500);
+            
+            System.out.println("✓ Deletion completed");
+            
+        } catch (Exception e) {
+            System.err.println("Failed to delete category: " + e.getMessage());
+            
+            // Debug info
+            Locator allLinks = getFirstRow().locator("td:last-child a");
+            Locator allButtons = getFirstRow().locator("td:last-child button");
+            System.out.println("Total links in Actions column: " + allLinks.count());
+            System.out.println("Total buttons in Actions column: " + allButtons.count());
+            
+            throw new RuntimeException("Could not delete category", e);
+        }
     }
-    
+
     /**
-     * Cancels deletion by dismissing browser-native window.confirm() dialog
-     * Based on Cypress implementation: cy.on('window:confirm', () => false)
+     * Click delete button for first category and cancel the confirmation dialog
      */
-    public void cancelDelete() {
-        System.out.println("Setting up handler to DISMISS browser confirmation dialog...");
+    public void clickDeleteFirstCategoryAndCancel() {
+        System.out.println("Clicking Delete button for first category (will cancel)");
+        page.waitForTimeout(500);
         
-        // Handle browser-native window.confirm() dialog
-        page.onceDialog(dialog -> {
+        // ✅ Set up dialog handler to DISMISS
+        page.onDialog(dialog -> {
             System.out.println("✓ Browser confirmation dialog detected:");
             System.out.println("  Type: " + dialog.type());
             System.out.println("  Message: " + dialog.message());
             
-            dialog.dismiss(); // Click Cancel (equivalent to Cypress: return false)
-            System.out.println("  ✓ Dismissed dialog - deletion cancelled");
+            // Dismiss the dialog
+            dialog.dismiss();
+            System.out.println("  ✓ Dialog dismissed - deletion cancelled");
         });
         
-        // Wait for page to process
-        page.waitForTimeout(500);
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        System.out.println("✓ Delete cancellation completed");
+        try {
+            Locator deleteButton = getFirstRow().locator("button[title='Delete']");
+            
+            if (deleteButton.count() == 0) {
+                String[] selectors = {
+                    "button:has-text('Delete')",
+                    "button.delete-btn",
+                    "button[data-action='delete']",
+                    "td:last-child button"
+                };
+                
+                for (String selector : selectors) {
+                    deleteButton = getFirstRow().locator(selector);
+                    if (deleteButton.count() > 0) {
+                        break;
+                    }
+                }
+            }
+            
+            if (deleteButton.count() == 0) {
+                throw new RuntimeException("Delete button not found");
+            }
+            
+            deleteButton.click();
+            System.out.println("✓ Delete button clicked and cancelled");
+            
+            page.waitForLoadState(LoadState.NETWORKIDLE);
+            page.waitForTimeout(500);
+            
+        } catch (Exception e) {
+            System.err.println("Failed during cancel operation: " + e.getMessage());
+            throw new RuntimeException("Could not cancel deletion", e);
+        }
     }
     
     // ================= Validations =================
@@ -470,7 +485,7 @@ public class CategoryUiPage {
             }
         }
 
-        System.out.println("Delete buttons are disabled for regular user");
+        System.out.println("✓ Delete buttons are disabled for regular user");
         return true;
     }
 }

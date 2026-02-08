@@ -140,7 +140,7 @@ public class CategoryApiSteps {
     public void updateCategoryName() {
         assertNotNull(validCategoryId, "Valid category ID must be set before updating");
         
-        String newName = "UpdatedCategory_" + System.currentTimeMillis();
+        String newName = "Cat" + (System.currentTimeMillis() % 10000);
         requestBody = new HashMap<>();
         requestBody.put(FIELD_NAME, newName);
 
@@ -167,7 +167,7 @@ public class CategoryApiSteps {
     public void userAttemptsToUpdateCategory() {
         assertNotNull(validCategoryId, "Valid category ID must be set before updating");
         
-        String newName = "UnauthorizedUpdate_" + System.currentTimeMillis();
+        String newName = "Cat" + (System.currentTimeMillis() % 10000);
         requestBody = new HashMap<>();
         requestBody.put(FIELD_NAME, newName);
 

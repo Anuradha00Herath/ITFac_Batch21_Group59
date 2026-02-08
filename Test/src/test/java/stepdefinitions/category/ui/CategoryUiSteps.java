@@ -8,16 +8,30 @@ import pages.dashboard.DashboardPage;
 import utils.category.PlaywrightManager;
 import utils.category.Config;
 
+import java.util.Random;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CategoryUiSteps {
 
+    // ================= CONSTANTS =================
+    private static final String EMPTY_STRING = "";
+    private static final int SHORT_WAIT = 500;
+    private static final int MEDIUM_WAIT = 1000;
+    private static final int LONG_WAIT = 1500;
+    private static final String CATEGORY_PREFIX = "Cat";
+    private static final int RANDOM_NUMBER_BOUND = 10000;
+
+    // ================= STATE =================
     private final Page page = PlaywrightManager.getPage();
     private final CategoryUiPage categoryUiPage = new CategoryUiPage(page);
     private final DashboardPage dashboardPage = new DashboardPage(page);
+    private final Random random = new Random();
     
     private String originalCategoryName;
-    private boolean dialogHandlerSet = false;
+    private String generatedCategoryName;
+
+    // ================= AUTHENTICATION =================
 
     @Given("User is logged in as Admin")
     public void userIsLoggedInAsAdmin() {
@@ -53,6 +67,8 @@ public class CategoryUiSteps {
             new Page.WaitForURLOptions().setTimeout(10000));
     }
 
+    // ================= PRECONDITIONS =================
+
     @Given("At least one category exists")
     public void atLeastOneCategoryExists() {
         System.out.println("✓ Assuming at least one category exists in the system");
@@ -68,6 +84,8 @@ public class CategoryUiSteps {
         dashboardPage.openDashboard();
     }
 
+    // ================= NAVIGATION =================
+
     @When("Navigate to Categories page")
     public void navigateToCategoriesPage() {
         categoryUiPage.openCategoriesPage();
@@ -78,76 +96,21 @@ public class CategoryUiSteps {
         dashboardPage.openDashboard();
     }
 
+    // ================= EDIT OPERATIONS =================
+
     @When("Click Edit for first category")
     public void clickEditForFirstCategory() {
         System.out.println("Clicking Edit for first category");
-        page.waitForTimeout(1000);
-        
-        // Use direct position-based method (more reliable)
+        page.waitForTimeout(MEDIUM_WAIT);
         categoryUiPage.clickEditFirstCategory();
     }
 
     @When("Click Edit for any category")
     public void clickEditForAnyCategory() {
-        page.waitForTimeout(1000);
-        
-        // Store the original name before editing
+        page.waitForTimeout(MEDIUM_WAIT);
         originalCategoryName = categoryUiPage.getFirstCategoryName();
         System.out.println("Clicking Edit for category: " + originalCategoryName);
-        
-        // Use direct position-based method
         categoryUiPage.clickEditFirstCategory();
-    }
-
-    @When("Click Delete for first category")
-public void clickDeleteForFirstCategory() {
-    System.out.println("Clicking Delete for first category AND handling dialog");
-    page.waitForTimeout(1000);
-    
-    // Store the category name before deletion
-    originalCategoryName = categoryUiPage.getFirstCategoryName();
-    System.out.println("Category to be deleted: '" + originalCategoryName + "'");
-    
-    // Set up handler to AUTO-ACCEPT the dialog
-    page.onDialog(dialog -> {
-        System.out.println("✓ Dialog auto-accepted:");
-        System.out.println("  Message: " + dialog.message());
-        dialog.accept();
-    });
-    
-    // Click delete button
-    categoryUiPage.clickDeleteFirstCategory();
-    
-    // Wait for deletion to process
-    page.waitForTimeout(500);
-    System.out.println("✓ Delete clicked and dialog handled");
-}
-
-@When("Confirm delete in confirmation dialog")
-public void confirmDeleteInConfirmationDialog() {
-    // This step is now just a formality - deletion already happened
-    System.out.println("✓ Confirmation step (deletion already processed)");
-    page.waitForLoadState(LoadState.NETWORKIDLE);
-}
-
-    @When("Cancel delete in confirmation dialog")
-    public void cancelDeleteInConfirmationDialog() {
-        System.out.println("Cancelling deletion in browser dialog");
-        
-        // Replace the dialog handler to dismiss the dialog
-        page.onDialog(dialog -> {
-            System.out.println("✓ Handling confirmation dialog:");
-            System.out.println("  Type: " + dialog.type());
-            System.out.println("  Message: " + dialog.message());
-            dialog.dismiss(); // Click Cancel
-            System.out.println("  ✓ Dismissed - deletion cancelled");
-        });
-        
-        page.waitForTimeout(500);
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        System.out.println("✓ Delete cancellation completed");
-        
-        dialogHandlerSet = false;
     }
 
     @When("Click Edit for category {string}")
@@ -155,10 +118,29 @@ public void confirmDeleteInConfirmationDialog() {
         categoryUiPage.clickEditByCategoryName(categoryName);
     }
 
-    @When("Change Category Name to {string}")
-    public void changeCategoryName(String name) {
-        categoryUiPage.setCategoryName(name);
+    // ================= CATEGORY NAME OPERATIONS =================
+
+    @When("Change Category Name")
+    public void changeCategoryName() {
+        generatedCategoryName = generateRandomCategoryName();
+        categoryUiPage.setCategoryName(generatedCategoryName);
+        System.out.println("✓ Generated random category name: " + generatedCategoryName);
     }
+
+    @When("Change Category Name to {string}")
+    public void changeCategoryNameTo(String name) {
+        if (name.isEmpty() || name.equals(EMPTY_STRING)) {
+            categoryUiPage.setCategoryName(EMPTY_STRING);
+            generatedCategoryName = EMPTY_STRING;
+            System.out.println("✓ Setting empty category name for validation test");
+        } else {
+            categoryUiPage.setCategoryName(name);
+            generatedCategoryName = name;
+            System.out.println("✓ Setting category name to: " + name);
+        }
+    }
+
+    // ================= FORM ACTIONS =================
 
     @When("Click Save button")
     public void clickSaveButton() {
@@ -170,38 +152,52 @@ public void confirmDeleteInConfirmationDialog() {
         categoryUiPage.clickCancel();
     }
 
+    // ================= DELETE OPERATIONS =================
+
+    @When("Click Delete for first category")
+    public void clickDeleteForFirstCategory() {
+        System.out.println("Preparing to delete first category");
+        page.waitForTimeout(MEDIUM_WAIT);
+        
+        // Store the category name before deletion
+        originalCategoryName = categoryUiPage.getFirstCategoryName();
+        System.out.println("Category to be deleted: '" + originalCategoryName + "'");
+    }
+
+    @When("Confirm delete in confirmation dialog")
+    public void confirmDeleteInConfirmationDialog() {
+        System.out.println("Confirming deletion of category: '" + originalCategoryName + "'");
+        
+        // This method handles both clicking delete AND confirming the dialog
+        categoryUiPage.clickDeleteFirstCategoryAndConfirm();
+        
+        System.out.println("✓ Delete confirmed and completed");
+    }
+
+    @When("Cancel delete in confirmation dialog")
+    public void cancelDeleteInConfirmationDialog() {
+        System.out.println("Cancelling deletion of category: '" + originalCategoryName + "'");
+        
+        // This method handles both clicking delete AND cancelling the dialog
+        categoryUiPage.clickDeleteFirstCategoryAndCancel();
+        
+        System.out.println("✓ Delete cancelled");
+    }
+
     @When("Click Delete for category {string}")
     public void clickDeleteCategory(String name) {
         System.out.println("Clicking Delete for category: '" + name + "'");
-        originalCategoryName = name; // Store for verification
-        
-        // Set up dialog handler BEFORE clicking
-        page.onDialog(dialog -> {
-            System.out.println("⚠️ Dialog appeared for category: " + name);
-            dialogHandlerSet = true;
-        });
-        
+        originalCategoryName = name;
         categoryUiPage.clickDeleteByCategoryName(name);
     }
 
-    @When("Confirm delete for category {string}")
-    public void confirmDeleteForCategory(String name) {
-        page.onDialog(dialog -> {
-            System.out.println("✓ Confirming deletion of category: " + name);
-            dialog.accept();
-        });
-        
-        page.waitForTimeout(500);
-        page.waitForLoadState(LoadState.NETWORKIDLE);
-        dialogHandlerSet = false;
-    }
+    // ================= VALIDATIONS - PAGE STATE =================
 
     @Then("Edit page is opened")
     public void editPageIsOpened() {
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.waitForTimeout(1000);
+        page.waitForTimeout(MEDIUM_WAIT);
         
-        // Check multiple indicators that we're on the edit page
         boolean hasEditHeader = page.locator("h1:has-text('Edit Category'), h2:has-text('Edit Category'), h3:has-text('Edit Category')").count() > 0;
         boolean hasNameInput = page.locator("input[name='name'], input#name, input[placeholder*='name' i]").count() > 0;
         boolean urlContainsEdit = page.url().contains("/edit");
@@ -211,32 +207,60 @@ public void confirmDeleteInConfirmationDialog() {
             ", input=" + hasNameInput + ", url=" + urlContainsEdit + ")");
     }
 
+    @Then("Edit Category page is displayed for ID {string}")
+    public void verifyEditPage(String id) {
+        assertTrue(categoryUiPage.isOnEditPage(id));
+    }
+
+    // ================= VALIDATIONS - CATEGORY NAME =================
+
     @Then("Category name remains unchanged in the list")
     public void categoryNameRemainsUnchanged() {
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.waitForTimeout(1000);
+        page.waitForTimeout(MEDIUM_WAIT);
         
-        // Verify we're back on the categories list page
         boolean isOnListPage = page.url().contains("/categories") && !page.url().contains("/edit");
         assertTrue(isOnListPage, "Should return to categories list page after cancel");
         
-        // Verify original category name is still present
         if (originalCategoryName != null && !originalCategoryName.isEmpty()) {
             assertTrue(categoryUiPage.isCategoryVisible(originalCategoryName),
                 "Original category name '" + originalCategoryName + "' should still be present after cancel");
         }
     }
 
+    @Then("Category name is updated in the list")
+    public void verifyUpdatedName() {
+        page.waitForTimeout(LONG_WAIT);
+        
+        assertNotNull(generatedCategoryName, "Generated category name should not be null");
+        assertFalse(generatedCategoryName.isEmpty(), "Generated category name should not be empty");
+        
+        assertTrue(categoryUiPage.isCategoryVisible(generatedCategoryName),
+            "Category '" + generatedCategoryName + "' should be visible in the list");
+        
+        System.out.println("✓ Category name successfully updated to: " + generatedCategoryName);
+    }
+
+    @Then("Category name is updated to {string} in the list")
+    public void verifyUpdatedNameTo(String name) {
+        page.waitForTimeout(LONG_WAIT);
+        
+        assertTrue(categoryUiPage.isCategoryVisible(name),
+            "Category '" + name + "' should be visible in the list");
+    }
+
+    // ================= VALIDATIONS - DELETE =================
+
     @Then("Category is removed from the list")
     public void categoryIsRemovedFromList() {
+                page.waitForTimeout(MEDIUM_WAIT);
+
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.waitForTimeout(1500); // Wait for deletion to complete
+        page.waitForTimeout(LONG_WAIT);
         
-        // Verify we're back on the categories page
         boolean isOnListPage = page.url().contains("/categories");
         assertTrue(isOnListPage, "Should be on categories list page after deletion");
         
-        // Verify the category is actually removed
         if (originalCategoryName != null && !originalCategoryName.isEmpty()) {
             assertFalse(categoryUiPage.isCategoryVisible(originalCategoryName),
                 "Category '" + originalCategoryName + "' should be removed from the list");
@@ -249,13 +273,10 @@ public void confirmDeleteInConfirmationDialog() {
     @Then("Category is NOT removed from the list")
     public void categoryIsNotRemovedFromList() {
         page.waitForLoadState(LoadState.NETWORKIDLE);
-        page.waitForTimeout(1000);
-        
-        // Verify we're still on the categories page
+        page.waitForTimeout(LONG_WAIT);        
         boolean isOnListPage = page.url().contains("/categories");
         assertTrue(isOnListPage, "Should still be on categories list page after cancel");
         
-        // Verify the category is still present
         if (originalCategoryName != null && !originalCategoryName.isEmpty()) {
             assertTrue(categoryUiPage.isCategoryVisible(originalCategoryName),
                 "Category '" + originalCategoryName + "' should NOT be removed from the list after cancel");
@@ -263,17 +284,20 @@ public void confirmDeleteInConfirmationDialog() {
         }
     }
 
-    @Then("Edit Category page is displayed for ID {string}")
-    public void verifyEditPage(String id) {
-        assertTrue(categoryUiPage.isOnEditPage(id));
+    @Then("Category {string} is removed from the list")
+    public void verifyCategoryDeleted(String name) {
+        page.waitForTimeout(LONG_WAIT);
+        assertFalse(categoryUiPage.isCategoryVisible(name),
+            "Category '" + name + "' should be removed from the list");
     }
 
-    @Then("Category name is updated to {string} in the list")
-    public void verifyUpdatedName(String name) {
-        page.waitForTimeout(1500); // Wait for update to complete
+    @Then("Category {string} is NOT removed from the list")
+    public void verifyCategoryNotDeleted(String name) {
         assertTrue(categoryUiPage.isCategoryVisible(name),
-            "Category '" + name + "' should be visible in the list");
+            "Category '" + name + "' should NOT be removed from the list");
     }
+
+    // ================= VALIDATIONS - ERROR MESSAGES =================
 
     @Then("Validation error message {string} is displayed")
     public void verifyValidationError(String message) {
@@ -281,19 +305,7 @@ public void confirmDeleteInConfirmationDialog() {
             "Validation message '" + message + "' should be displayed");
     }
 
-    @Then("Category {string} is removed from the list")
-    public void verifyCategoryDeleted(String name) {
-        page.waitForTimeout(1500); // Wait for deletion to complete
-        assertFalse(categoryUiPage.isCategoryVisible(name),
-            "Category '" + name + "' should be removed from the list");
-    }
-
-    @Then("Category {string} is NOT removed from the list")
-    public void verifyCategoryNotDeleted(String name) {
-        page.waitForTimeout(1000);
-        assertTrue(categoryUiPage.isCategoryVisible(name),
-            "Category '" + name + "' should NOT be removed from the list");
-    }
+    // ================= VALIDATIONS - USER PERMISSIONS =================
 
     @Then("\"Add Category\" button is NOT visible")
     public void verifyAddCategoryButtonNotVisible() {
@@ -314,6 +326,8 @@ public void confirmDeleteInConfirmationDialog() {
         assertTrue(categoryUiPage.areDeleteButtonsHidden(),
             "Delete buttons should be hidden for regular users");
     }
+
+    // ================= VALIDATIONS - DASHBOARD =================
 
     @Then("Category summary is displayed with correct count")
     public void categorySummaryIsDisplayed() {
@@ -343,5 +357,12 @@ public void confirmDeleteInConfirmationDialog() {
     public void dashboardMenuItemIsActive() {
         assertTrue(dashboardPage.isDashboardMenuItemActive(),
             "Dashboard menu item should be highlighted as active");
+    }
+
+    // ================= UTILITY METHODS =================
+
+    private String generateRandomCategoryName() {
+        int randomNumber = random.nextInt(RANDOM_NUMBER_BOUND);
+        return CATEGORY_PREFIX + String.format("%04d", randomNumber);
     }
 }
